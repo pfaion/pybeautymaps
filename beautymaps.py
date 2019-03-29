@@ -27,7 +27,7 @@ im.show()
 # %% test cairo
 import cairo
 
-with cairo.SVGSurface("example.svg", 200, 200) as surface:
+with cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200) as surface:
     context = cairo.Context(surface)
     x, y, x1, y1 = 0.1, 0.5, 0.4, 0.9
     x2, y2, x3, y3 = 0.6, 0.1, 0.9, 0.5
@@ -43,3 +43,4 @@ with cairo.SVGSurface("example.svg", 200, 200) as surface:
     context.move_to(x2, y2)
     context.line_to(x3, y3)
     context.stroke()
+    surface.write_to_png("example.png")

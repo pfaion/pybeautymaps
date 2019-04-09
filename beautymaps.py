@@ -30,18 +30,23 @@ import overpy
 api = overpy.Overpass()
 
 # fetch all ways and nodes
-result = api.query("""
-    way(50.746,7.154,50.748,7.157) ["highway"];
-    (._;>;);
-    out body;
-    """)
+result = api.query(
+"""
+(
+way
+  ["highway"~"^motorway|trunk|primary|secondary|tertiary|residential|living_street$"]
+  (57.515306, 25.365349, 57.561689, 25.459442);
+  >;
+);
+out;
+""")
 
-for way in result.ways:
-    print("Name: %s" % way.tags.get("name", "n/a"))
-    print("  Highway: %s" % way.tags.get("highway", "n/a"))
-    print("  Nodes:")
-    for node in way.nodes:
-        print("    Lat: %f, Lon: %f" % (node.lat, node.lon))
+# for way in result.ways:
+#     print("Name: %s" % way.tags.get("name", "n/a"))
+#     print("  Highway: %s" % way.tags.get("highway", "n/a"))
+#     print("  Nodes:")
+#     for node in way.nodes:
+#         print("    Lat: %f, Lon: %f" % (node.lat, node.lon))
 
 
 # %% convert ways to x/y
@@ -58,26 +63,35 @@ for way in result.ways:
         tmp.append((x, y))
     pixelways.append(tmp)
 
+scale = 10
+
 for i, way in enumerate(pixelways):
     for j, (x, y) in enumerate(way):
-        pixelways[i][j] = (x - xrange[0], y - yrange[0])
+        pixelways[i][j] = ((x - xrange[0])/scale, (y - yrange[0])/scale)
 
-width = math.ceil(xrange[1] - xrange[0])
-height = math.ceil(yrange[1] - yrange[0])
+width = math.ceil(xrange[1]/scale - xrange[0]/scale)
+height = math.ceil(yrange[1]/scale - yrange[0]/scale)
 
 # %% test print w cairo
 import cairo
 
-with cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height) as surface:
+
+
+margin = 50
+
+with cairo.ImageSurface(cairo.FORMAT_ARGB32, width + 2*margin, height + 2*margin) as surface:
     context = cairo.Context(surface)
     context.scale(1, 1)
+    context.rectangle(0, 0, width + 2*margin, height + 2*margin)
+    context.set_source_rgb(1, 1, 1)
+    context.fill()
     context.set_source_rgb(0, 0, 0)
     context.set_line_width(1)
     for way in pixelways:
         x, y = way[0]
-        context.move_to(int(x), int(y))
+        context.move_to(int(x) + margin, int(y) + margin)
         for x, y in way:
-            context.line_to(int(x), int(y))
+            context.line_to(int(x) + margin, int(y) + margin)
     context.stroke()
 
     surface.write_to_png("example.png")

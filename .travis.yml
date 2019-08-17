@@ -1,14 +1,14 @@
 language: python
 python:
-  # - "3.6"
+  - "3.6"
   - "3.7"
-  # - "3.7-dev"
-  # - "3.8-dev"
-  # - "nightly"
+  - "3.7-dev"
+  - "3.8-dev"
+  - "nightly"
 
 env:
   global:
-    - COVERAGE_DEBUG=process,config
+    # yaml build with a lot of warnings, which clutter the output
     - PYTHONWARNINGS=ignore::yaml.YAMLLoadWarning
 
 matrix:

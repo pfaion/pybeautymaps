@@ -13,6 +13,8 @@ setup_requires = [
 
 tests_require = (
     'pytest',
+    'coverage==4.*', # coverage 5.* has SQLite output and is not compatible with coveralls 
+    'pytest-cov',
 )
 
 setup(

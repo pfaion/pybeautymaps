@@ -1,13 +1,23 @@
 language: python
-script: python setup.py pytest
 python:
-  - "3.6"
+  # - "3.6"
   - "3.7"
-  - "3.7-dev"
-  - "3.8-dev"
-  - "nightly"
+  # - "3.7-dev"
+  # - "3.8-dev"
+  # - "nightly"
+
+env:
+  global:
+    - COVERAGE_DEBUG=process,config
+    - PYTHONWARNINGS=ignore::yaml.YAMLLoadWarning
 
 matrix:
   allow_failures:
     - python: "3.8-dev"
     - python: "nightly"
+
+script: 
+  - python setup.py pytest
+after_success:
+  - pip install coveralls
+  - coveralls

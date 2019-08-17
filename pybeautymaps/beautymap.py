@@ -1,30 +1,15 @@
-import math
-
 import cairo
 import numpy as np
 import overpy
-from pyproj import Proj
 
+from . import utils
 
 class Beautymap:
 
-    @staticmethod
-    def bbox_from_centered(center_latlon, size):
-        # quick and dirty conversion of cathographic to geodetic distances
-        # see: https://gis.stackexchange.com/a/2964
-        # TODO: use pyproj for this as well!
-        lat, lon = center_latlon
-        delta_lat = size / 111.111
-        delta_lon = size / (111.111 * math.cos(lat))
-        bbox = (lat - delta_lat, lon - delta_lon, lat + delta_lat, lon + delta_lon)
-        return bbox
-
-
     @classmethod
     def centered(cls, center_latlon, size):
-        bbox = cls.bbox_from_centered(center_latlon, size)
+        bbox = utils.bbox_from_centered(center_latlon, size)
         return cls(bbox)
-
 
     def __init__(self, bbox):
         self.bbox = bbox
@@ -50,18 +35,11 @@ class Beautymap:
             for way in self.raw_overpass_data
         ]
 
-        # EPSG.3857 projection https://epsg.io/3857
-        # Pseudo-Mercator as used by Google Maps and Open Street Maps
-        proj = Proj(3857)
-        self.cathographic_data = [
-            # projector works with separate arrays of longs and lats (!)
-            np.vstack(proj(way[:, 1], way[:, 0])).T
-            for way in self.geodetic_data
-        ]
+        self.cathographic_data = utils.cathographic_from_geodetic(*self.geodetic_data)
 
 
     def get_overpass_data(self):
-        overpass_ql_query = f"""
+        self.overpass_ql_query = f"""
             (
             way
                 // filter road types with OR regex
@@ -71,7 +49,7 @@ class Beautymap:
             );
             out;
         """
-        return overpy.Overpass().query(overpass_ql_query).ways
+        return overpy.Overpass().query(self.overpass_ql_query).ways
 
 
     def render_square_png(self, filename, size, padding, line_widths=dict()):
@@ -115,13 +93,3 @@ class Beautymap:
                 ctx.fill()
 
             surface.write_to_png(filename)
-
-
-line_widths = dict(
-    trunk=5,
-    primary=4,
-    secondary=3,
-    tertiary=2,
-)
-m = Beautymap.centered(center_latlon=(57.538498, 25.412396), size=1.2)
-m.render_square_png("test.png", size=2000, padding=50, line_widths=line_widths)

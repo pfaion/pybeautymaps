@@ -1,0 +1,1 @@
+from .beautymap import Beautymap

@@ -13,6 +13,9 @@ class Beautymap:
 
     def __init__(self, bbox):
         self.bbox = bbox
+        bbox_data = np.array(self.bbox).reshape((2, 2))
+        self.carthographic_bbox = utils.carthographic_from_geodetic(bbox_data)[0]
+
         self.road_types = {
             'motorway',
             'trunk',
@@ -54,12 +57,11 @@ class Beautymap:
 
 
     def render_square_png(self, filename, size, padding, line_widths=dict()):
-        # 2D float
-        coord_min = np.min([way.min(axis=0) for way in self.carthographic_data], axis=0)
-        coord_max = np.max([way.max(axis=0) for way in self.carthographic_data], axis=0)
+        coord_min = self.carthographic_bbox[0, :]
+        coord_max = self.carthographic_bbox[1, :]
         coord_range = coord_max - coord_min
 
-        scale = size / coord_range.min()
+        px_per_coord = (size - 2 * padding) / coord_range.min()
 
         with cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size) as surface:
             ctx = cairo.Context(surface)
@@ -74,7 +76,7 @@ class Beautymap:
             ctx.set_line_cap(cairo.LINE_CAP_ROUND)
             for way, road_type in zip(self.carthographic_data, self.road_data):
                 ctx.set_line_width(line_widths.get(road_type, 1))
-                way_zeroed = np.rint((way - coord_min) * scale).astype(int)
+                way_zeroed = np.rint((way - coord_min) * px_per_coord + padding).astype(int)
                 x, y = way_zeroed[0, :]
                 ctx.move_to(x, size - y)
                 for x, y in way_zeroed[1:]:

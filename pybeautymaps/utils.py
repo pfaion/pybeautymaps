@@ -3,18 +3,15 @@ import math
 import numpy as np
 from pyproj import Proj
 
-def is_valid_size(size):
-    return size > 0
-
 def is_valid_latitude(lat):
     return -90 <= lat <= 90
 
 def is_valid_longitude(lon):
     return -180 <= lon <= 180
 
-def bbox_from_centered(center_latlon, size):
-    if not is_valid_size(size):
-        raise ValueError(f'Bounding box size must be positive! Is: {size}')
+def bbox_from_centered(center_latlon, width):
+    if width <= 0:
+        raise ValueError(f'Bounding box width must be positive! Is: {width}')
 
     lat, lon = center_latlon
     if not is_valid_latitude(lat):
@@ -25,8 +22,8 @@ def bbox_from_centered(center_latlon, size):
     # quick and dirty conversion of cathographic to geodetic distances
     # see: https://gis.stackexchange.com/a/2964
     # TODO: use pyproj for this as well!
-    delta_lat = size / 111.111
-    delta_lon = abs(size / (111.111 * math.cos(lat)))
+    delta_lat = width / 111.111
+    delta_lon = abs(width / (111.111 * math.cos(lat)))
     bbox = (lat - delta_lat, lon - delta_lon, lat + delta_lat, lon + delta_lon)
     return bbox
 

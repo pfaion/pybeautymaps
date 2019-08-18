@@ -7,8 +7,8 @@ from pybeautymaps import utils
 class Beautymap:
 
     @classmethod
-    def centered(cls, center_latlon, size):
-        bbox = utils.bbox_from_centered(center_latlon, size)
+    def square_centered(cls, center_latlon, width):
+        bbox = utils.bbox_from_centered(center_latlon, width)
         return cls(bbox)
 
     def __init__(self, bbox):
@@ -96,5 +96,12 @@ class Beautymap:
             surface.write_to_png(filename)
 
 if __name__ == "__main__":
-    m = Beautymap.centered((40.757667, -73.983715), 5.0)
-    m.render_square_png('test.png', 500, 10)
+    m = Beautymap.square_centered((40.757667, -73.983715), 5.0)
+    m.render_square_png('test.png', 2000, 50,
+        line_widths={
+            'trunk': 5,
+            'primary': 4,
+            'secondary': 3,
+            'tertiary': 2,
+        }
+    )

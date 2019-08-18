@@ -13,7 +13,7 @@ def test_beautymap_general_workflow(tmp_path):
         secondary=3,
         tertiary=2,
     )
-    m = pbm.Beautymap.centered(center_latlon=(37.030347, -93.473126), size=1.2)
+    m = pbm.Beautymap.square_centered(center_latlon=(37.030347, -93.473126), width=1.2)
     m.render_square_png(file_path, size=1000, padding=50, line_widths=line_widths)
 
     assert file_path.exists()

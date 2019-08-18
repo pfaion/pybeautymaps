@@ -2,7 +2,7 @@ import cairo
 import numpy as np
 import overpy
 
-from . import utils
+from pybeautymaps import utils
 
 class Beautymap:
 
@@ -94,3 +94,7 @@ class Beautymap:
                 ctx.fill()
 
             surface.write_to_png(filename)
+
+if __name__ == "__main__":
+    m = Beautymap.centered((40.757667, -73.983715), 5.0)
+    m.render_square_png('test.png', 500, 10)

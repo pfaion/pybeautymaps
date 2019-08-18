@@ -32,7 +32,10 @@ Take a look at the `examples <examples>`_ folder for different renderings.
         width=8.0
     )
 
-    m.render_square_png('manhattan.png', size=2000, padding=50,
+    m.render_square_png(
+        filename='manhattan.png',
+        size=2000,
+        padding=50,
         line_widths={
             'trunk': 5,
             'primary': 4,

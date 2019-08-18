@@ -98,7 +98,7 @@ class Beautymap:
             surface.write_to_png(filename)
 
 if __name__ == "__main__":
-    m = Beautymap.square_centered((40.757667, -73.983715), 5.0)
+    m = Beautymap.square_centered((40.757667, -73.983715), 8.0)
     m.render_square_png('test.png', 2000, 50,
         line_widths={
             'trunk': 5,

@@ -4,6 +4,7 @@ import overpy
 
 from pybeautymaps import utils
 
+
 class Beautymap:
 
     @classmethod
@@ -39,8 +40,6 @@ class Beautymap:
         ]
 
         self.carthographic_data = utils.carthographic_from_geodetic(*self.geodetic_data)
-        
-
 
     def get_overpass_data(self):
         self.overpass_ql_query = f"""
@@ -54,7 +53,6 @@ class Beautymap:
             out;
         """
         return overpy.Overpass().query(self.overpass_ql_query).ways
-
 
     def render_square_png(self, filename, size, padding, line_widths=dict()):
         coord_min = self.carthographic_bbox[0, :]
@@ -76,7 +74,8 @@ class Beautymap:
             ctx.set_line_cap(cairo.LINE_CAP_ROUND)
             for way, road_type in zip(self.carthographic_data, self.road_data):
                 ctx.set_line_width(line_widths.get(road_type, 1))
-                way_zeroed = np.rint((way - coord_min) * px_per_coord + padding).astype(int)
+                way_zeroed = (way - coord_min) * px_per_coord + padding
+                way_zeroed = np.rint(way_zeroed).astype(int)
                 x, y = way_zeroed[0, :]
                 ctx.move_to(x, size - y)
                 for x, y in way_zeroed[1:]:
@@ -97,9 +96,13 @@ class Beautymap:
 
             surface.write_to_png(filename)
 
+
 if __name__ == "__main__":
     m = Beautymap.square_centered((40.757667, -73.983715), 8.0)
-    m.render_square_png('test.png', 2000, 50,
+    m.render_square_png(
+        filename='test.png',
+        size=2000,
+        padding=50,
         line_widths={
             'trunk': 5,
             'primary': 4,

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pybeautymaps as pbm
 
+
 def test_beautymap_general_workflow(tmp_path):
     file_path: Path = tmp_path / 'test.png'
 

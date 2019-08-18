@@ -3,11 +3,14 @@ import math
 import numpy as np
 from pyproj import Proj
 
+
 def is_valid_latitude(lat):
     return -90 <= lat <= 90
 
+
 def is_valid_longitude(lon):
     return -180 <= lon <= 180
+
 
 def bbox_from_centered(center_latlon, width):
     if width <= 0:
@@ -26,6 +29,7 @@ def bbox_from_centered(center_latlon, width):
     delta_lon = abs(width / (111.111 * math.cos(lat)))
     bbox = (lat - delta_lat, lon - delta_lon, lat + delta_lat, lon + delta_lon)
     return bbox
+
 
 def carthographic_from_geodetic(*latlons):
     # EPSG.3857 projection https://epsg.io/3857

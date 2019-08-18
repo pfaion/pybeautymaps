@@ -30,7 +30,7 @@ def bbox_from_centered(center_latlon, size):
     bbox = (lat - delta_lat, lon - delta_lon, lat + delta_lat, lon + delta_lon)
     return bbox
 
-def cathographic_from_geodetic(*latlons):
+def carthographic_from_geodetic(*latlons):
     # EPSG.3857 projection https://epsg.io/3857
     # Pseudo-Mercator as used by Google Maps and Open Street Maps
     proj = Proj(3857)

@@ -35,7 +35,8 @@ class Beautymap:
             for way in self.raw_overpass_data
         ]
 
-        self.cathographic_data = utils.cathographic_from_geodetic(*self.geodetic_data)
+        self.carthographic_data = utils.carthographic_from_geodetic(*self.geodetic_data)
+        
 
 
     def get_overpass_data(self):
@@ -54,8 +55,8 @@ class Beautymap:
 
     def render_square_png(self, filename, size, padding, line_widths=dict()):
         # 2D float
-        coord_min = np.min([way.min(axis=0) for way in self.cathographic_data], axis=0)
-        coord_max = np.max([way.max(axis=0) for way in self.cathographic_data], axis=0)
+        coord_min = np.min([way.min(axis=0) for way in self.carthographic_data], axis=0)
+        coord_max = np.max([way.max(axis=0) for way in self.carthographic_data], axis=0)
         coord_range = coord_max - coord_min
 
         scale = size / coord_range.min()
@@ -71,7 +72,7 @@ class Beautymap:
 
             ctx.set_source_rgb(0, 0, 0)
             ctx.set_line_cap(cairo.LINE_CAP_ROUND)
-            for way, road_type in zip(self.cathographic_data, self.road_data):
+            for way, road_type in zip(self.carthographic_data, self.road_data):
                 ctx.set_line_width(line_widths.get(road_type, 1))
                 way_zeroed = np.rint((way - coord_min) * scale).astype(int)
                 x, y = way_zeroed[0, :]

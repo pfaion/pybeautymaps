@@ -43,3 +43,17 @@ Take a look at the `examples <examples>`_ folder for different renderings.
             'tertiary': 2,
         }
     )
+
+TODO
+----
+A brief list of what additional features are planned:
+
+- Add option to show rivers
+- Add option to use custom colors
+- Add more rendering shapes (rectangular, circular, ...)
+- Add more output formats (jpg, pdf, svg, ...)
+- Add debugging support via iPython
+
+  - Return image as iPython image
+  - Plot different road types in different colors
+  - Cache data for every road type separately

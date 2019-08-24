@@ -61,6 +61,9 @@ class Beautymap:
 
         px_per_coord = (size - 2 * padding) / coord_range.min()
 
+        # offsets for non-square shaped bounding boxes
+        offset = (coord_range - coord_range.min()) / 2
+
         with cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size) as surface:
             ctx = cairo.Context(surface)
             ctx.scale(1, 1)
@@ -74,7 +77,7 @@ class Beautymap:
             ctx.set_line_cap(cairo.LINE_CAP_ROUND)
             for way, road_type in zip(self.carthographic_data, self.road_data):
                 ctx.set_line_width(line_widths.get(road_type, 1))
-                way_zeroed = (way - coord_min) * px_per_coord + padding
+                way_zeroed = (way - coord_min - offset) * px_per_coord + padding
                 way_zeroed = np.rint(way_zeroed).astype(int)
                 x, y = way_zeroed[0, :]
                 ctx.move_to(x, size - y)

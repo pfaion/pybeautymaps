@@ -2,7 +2,7 @@ import cairo
 import numpy as np
 import overpy
 
-from pybeautymaps import utils
+from . import utils
 
 
 class Beautymap:

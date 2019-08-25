@@ -27,10 +27,19 @@ class Beautymap:
             'living_street',
         }
 
+        self.river_types = {
+            'river',
+            'stream',
+        }
+
         self.raw_overpass_data = self.get_overpass_data()
 
-        self.road_data = [
-            way.tags.get('highway', '')
+        self.way_tags = [
+            {
+                k: way.tags[k]
+                for k in way.tags
+                if k in ('highway', 'waterway', 'natural')
+            }
             for way in self.raw_overpass_data
         ]
 
@@ -42,16 +51,41 @@ class Beautymap:
         self.carthographic_data = utils.carthographic_from_geodetic(*self.geodetic_data)
 
     def get_overpass_data(self):
-        self.overpass_ql_query = f"""
+        self.overpass_ql_query = (
+            f"""
             (
-            way
+                way
                 // filter road types with OR regex
-                ["highway"~"^{'|'.join(self.road_types)}$"]
+                ["highway"~"^({'|'.join(self.road_types)})$"]
                 {str(self.bbox)};
                 >;
             );
-            out;
-        """
+            out;"""
+            f"""
+            (
+                way
+                ["waterway"~"^({'|'.join(self.river_types)})$"]
+                {str(self.bbox)};
+                >;
+            );
+            out;"""
+            f"""
+            (
+                way
+                [waterway=riverbank]
+                {str(self.bbox)};
+                >;
+            );
+            out;"""
+            f"""
+            (
+                way
+                [natural=water]
+                {str(self.bbox)};
+                >;
+            );
+            out;"""
+        )
         return overpy.Overpass().query(self.overpass_ql_query).ways
 
     def render_square_png(self, filename, size, padding, line_widths=dict()):
@@ -73,17 +107,29 @@ class Beautymap:
             ctx.set_source_rgb(1, 1, 1)
             ctx.fill()
 
-            ctx.set_source_rgb(0, 0, 0)
+            # ctx.set_source_rgb(0, 0, 0)
             ctx.set_line_cap(cairo.LINE_CAP_ROUND)
-            for way, road_type in zip(self.carthographic_data, self.road_data):
-                ctx.set_line_width(line_widths.get(road_type, 1))
+            for way, tags in zip(self.carthographic_data, self.way_tags):
                 way_zeroed = (way - coord_min - offset) * px_per_coord + padding
                 way_zeroed = np.rint(way_zeroed).astype(int)
                 x, y = way_zeroed[0, :]
                 ctx.move_to(x, size - y)
                 for x, y in way_zeroed[1:]:
                     ctx.line_to(x, size - y)
-                ctx.stroke()
+                
+                if 'highway' in tags:
+                    ctx.set_line_width(1)
+                    ctx.set_source_rgb(0, 0, 0)
+                    ctx.stroke()
+                elif 'waterway' in tags and tags['waterway'] != 'riverbank':
+                    ctx.set_line_width(5)
+                    ctx.set_source_rgb(0, 0, 1)
+                    ctx.stroke()
+                else:
+                    # TODO: sort ways according to type:
+                    # water areas first, then rivers on top, then streets on top!
+                    ctx.set_source_rgb(0, 1, 1)
+                    ctx.fill()
 
             # padding
             ctx.set_source_rgb(1, 1, 1)
